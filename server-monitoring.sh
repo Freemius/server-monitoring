@@ -9,10 +9,12 @@ PATH=/usr/sbin:/sbin:/usr/bin:/bin
 #    bash server-monitoring.sh --info=true
 #
 #    // Monitor server.
-#    bash server-monitoring.sh --debug=true --from=server@freemius.com --to=admin@freemius.com --cpu=warning=20:critical=50 --memory=warning=30:critical=60 --disk=warning=40:critical=60:fatal=70
+#    bash server-monitoring.sh --debug=true --hostname=fs.app --from=server@freemius.com --to=admin@freemius.com --cpu=warning=20:critical=50 --memory=warning=30:critical=60 --disk=warning=40:critical=60:fatal=70
 #
 #	 // Cronjob that monitors server's health every 2 min.	
-#	 */2 * * * * bash /server-monitoring/server-monitoring.sh --from=server@freemius.com --to=admin@freemius.com --cpu=warning=20:critical=50 --memory=warning=30:critical=60 --disk=warning=40:critical=60:fatal=70
+#	 */2 * * * * bash /server-monitoring/server-monitoring.sh --hostname=fs.app --from=server@freemius.com --to=admin@freemius.com --cpu=warning=20:critical=50 --memory=warning=30:critical=60 --disk=warning=40:critical=60:fatal=70
+#
+#    All arguments except --debug, --hostname, and --info are required.
 #
 # Author: Vova Feldman
 # Company: Freemius, Inc.
@@ -58,6 +60,10 @@ case $i in
     DEBUG="${i#*=}"
     shift # past argument=value
     ;;
+    -h=*|--hostname=*)
+    HOSTNAME="${i#*=}"
+    shift # past argument=value
+    ;;
     -i=*|--info=*)
     INFO="${i#*=}"
     shift # past argument=value
@@ -71,6 +77,16 @@ case $i in
     ;;
 esac
 done
+
+# Set default values
+# ==========================
+if [ -z ${DEBUG+x} ]; then
+    DEBUG="false"
+fi
+
+if [ -z ${HOSTNAME+x} ]; then
+    HOSTNAME=$( hostname )
+fi
 
 # Install missing modules
 # ==========================
@@ -92,20 +108,10 @@ if ! type "mpstat" > /dev/null; then
 	yum -y install sysstat
 fi
 
-# If debug flag wasn't set, default to false.
-# ==========================
-if [ -z ${DEBUG+x} ]; then
-    DEBUG="false"
-fi
-
 # Helper functions
 # ==========================
 get_server_ip () {
 	ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'
-}
-
-get_hostname () {
-	 hostname
 }
 
 echo_debug () {
@@ -256,7 +262,6 @@ prepare_alert () {
 	# Format datetime.
 	START_TIME=$( date -d @$START_TIME)
 
-	local HOSTNAME=$( get_hostname )
 	local SERVER_IP=$( get_server_ip )
 
 	local COLOR='green'
@@ -322,10 +327,11 @@ fi
 
 if [ $DEBUG = "true" ]; then
 	clear
-	echo "DEBUG  = true"
-	echo "CPU    = ${CPU}"
-	echo "MEMORY = ${MEMORY}"
-	echo "DISK   = ${DISK}"
+	echo "DEBUG    = true"
+	echo "CPU      = ${CPU}"
+	echo "MEMORY   = ${MEMORY}"
+	echo "DISK     = ${DISK}"
+	echo "HOSTNAME = ${HOSTNAME}"
 fi
 
 # Main logic
