@@ -5,8 +5,7 @@ This bash script is used for [Freemius](https://freemius.com)' servers monitorin
 The script supports unlimited levels of severity limits. For example, you can have a `warning` severity limit as well as `critical` alerts.
 
 ## System Requirements
-This bash script was created for CentOS 6.X. It should also be compatible with RHEL and Amazon Linux.
-If you want to use it on a Debian or Ubuntu, you'll need to replace all the `yum` calls with `apt-get`. The rest should work.
+This bash script was created for CentOS 6.X. It should also be compatible with RHEL and Amazon Linux. And thanks to [@gnanet](https://github.com/Freemius/server-monitoring/pull/2), it should work with Debian based systems and Ubuntu.
 
 ## Motivation
 We've been using [NewRelic](https://newrelic.com) for years and love the product. Recently, they made changes to their plans and the cheapest plan that supports email alerts, which was one of the main features we've been using, starts at $300 per month. Paying $3,600 per year for email alerts doesn't make sense for us, so we decided to build this script for our internal use. Later, we decided to contribute it to the open-source community - saving others these several days of development. Enjoy!
