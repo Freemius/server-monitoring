@@ -88,25 +88,90 @@ if [ -z ${HOSTNAME+x} ]; then
     HOSTNAME=$( hostname )
 fi
 
+# Detect distribution, for required module install later
+# =======================================================
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    if [ "$ID" != "" ]; then OS=$ID; elif [ "$NAME" != "" ]; then OS=$NAME; fi
+    VER=$VERSION_ID
+elif type lsb_release >/dev/null 2>&1; then
+    OS=$(lsb_release -si)
+    VER=$(lsb_release -sr)
+elif [ -f /etc/lsb-release ]; then
+    # For some versions of Debian/Ubuntu without lsb_release command
+    . /etc/lsb-release
+    OS=$DISTRIB_ID
+    VER=$DISTRIB_RELEASE
+elif [ -f /etc/debian_version ]; then
+    # Older Debian/Ubuntu/etc.
+    OS=Debian
+    VER=$(cat /etc/debian_version)
+elif [ -f /etc/redhat-release ]; then
+    # Older CentOS
+    OS=$(cat /etc/redhat-release | cut -f 1 -d " ")
+    VER=$(cat /etc/redhat-release | cut -f 3 -d " ")
+else
+    # Fall back to uname, e.g. "Linux <version>", also works for BSD, etc.
+    OS=$(uname -s)
+    VER=$(uname -r)
+fi
+# Distribution name should be lowercase
+DIST=$(echo $OS | tr '[:upper:]' '[:lower:]')
+
 # Install missing modules
 # ==========================
-if ! type "sendmail" > /dev/null; then
-  	echo "Installaing Sendmail..."
+case "$DIST" in
+    "debian*"|"ubuntu*")
+        if ! type "sendmail" > /dev/null; then
+          	echo "Installing Postfix for sendmail command..."
 
-	yum install -y sendmail
-	service sendmail start
-	chkconfig --levels 2345 sendmail on
-fi
-if ! type "bc" > /dev/null; then
-  	echo "Installaing bc (an arbitrary precision calculator language)..."
+	        apt-get install -y postfix
+        fi
+        if ! type "bc" > /dev/null; then
+          	echo "Installing bc (an arbitrary precision calculator language)..."
 
-	yum install -y bc
-fi
-if ! type "mpstat" > /dev/null; then
-  	echo "Installaing sar, sadf, mpstat, iostat, pidstat and sa tools..."
+	        apt-get -y install bc
+        fi
+        if ! type "mpstat" > /dev/null; then
+          	echo "Installing sar, sadf, mpstat, iostat, pidstat and sa tools..."
 
-	yum -y install sysstat
-fi
+	        apt-get -y install sysstat
+        fi
+    ;;
+    "centos*")
+        if ! type "sendmail" > /dev/null; then
+          	echo "Installing Sendmail..."
+
+	        yum install -y sendmail
+	        service sendmail start
+	        chkconfig --levels 2345 sendmail on
+        fi
+        if ! type "bc" > /dev/null; then
+          	echo "Installing bc (an arbitrary precision calculator language)..."
+
+	        yum install -y bc
+        fi
+        if ! type "mpstat" > /dev/null; then
+          	echo "Installing sar, sadf, mpstat, iostat, pidstat and sa tools..."
+
+	        yum -y install sysstat
+        fi
+    ;;
+    *)
+        if ! type "sendmail" > /dev/null; then
+            echo "You need sendmail to run this script, please install it manually"
+            exit 127
+        fi   
+        if ! type "bc" > /dev/null; then
+            echo "You need bc to run this script, please install it manually"
+            exit 127
+        fi
+        if ! type "mpstat" > /dev/null; then
+            echo "You need mpstat to run this script, please install it manually"
+            exit 127
+        fi
+    ;;
+esac
 
 # Helper functions
 # ==========================
