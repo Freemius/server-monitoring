@@ -13,18 +13,19 @@ We've been using [NewRelic](https://newrelic.com) for years and love the product
 ## Usage
 `bash server-monitoring.sh [options]`
 
-|         Argument | Description                                                                |          |
-|-----------------:|----------------------------------------------------------------------------|----------|
-|  `--debug`, `-d` | If set to `true` will echo the progress.                                   | Optional |
-|   `--info`, `-i` | If set to `true` will output the server's CPU, RAM, and disks consumption. | Optional |
-|    `--from`,`-f` | The email address incident alerts will be sent from.                       | Required |
-|     `--to`, `-t` | The email address incident alerts will be sent to.                         | Required |
-|    `--cpu`, `-c` | The avg. CPU consumption incident severity limits.                         | Required |
-| `--memory`, `-m` | The RAM consumption incident severity limits.                              | Required |
-|   `--disk`, `-d` | The disk(s) consumption incident severity limits.                          | Required |
+|          Argument | Description                                                                |          |
+|------------------:|----------------------------------------------------------------------------|----------|
+|   `--debug`, `-d` | If set to `true` will echo the progress.                                   | Optional |
+|    `--info`, `-i` | If set to `true` will output the server's CPU, RAM, and disks consumption. | Optional |
+| `--hostname`,`-h` | The hostname that will be used in the email alerts.                        | Optional |
+|     `--from`,`-f` | The email address incident alerts will be sent from.                       | Required |
+|      `--to`, `-t` | The email address incident alerts will be sent to.                         | Required |
+|     `--cpu`, `-c` | The avg. CPU consumption incident severity limits.                         | Required |
+|  `--memory`, `-m` | The RAM consumption incident severity limits.                              | Required |
+|    `--disk`, `-d` | The disk(s) consumption incident severity limits.                          | Required |
 
 ### Example
-`bash server-monitoring.sh --debug=true --from=server@yourdomain.com --to=admin@yourdomain.com --cpu=warning=20:critical=50 --memory=warning=30:critical=60 --disk=warning=40:critical=60:fatal=70`
+`bash server-monitoring.sh --debug=true --hostname=myAwesomeServer --from=server@yourdomain.com --to=admin@yourdomain.com --cpu=warning=20:critical=50 --memory=warning=30:critical=60 --disk=warning=40:critical=60:fatal=70`
 
 ### Instructions
 1. Select an email address that will be the source for the server incident alerts. Something like `server@yourdomain.com`.
