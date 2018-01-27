@@ -186,7 +186,7 @@ echo_debug () {
 }
 
 get_cpu_usage () {
-	local CPU_IDLE=$( mpstat | grep -Po 'all.* \K[^ ]+$' )
+	local CPU_IDLE=$( mpstat | grep -Po 'all.* \K[^ ]+$' | sed 's/\,/./' )
 	local CPU_LOAD=$( bc <<< "100 - $CPU_IDLE" )
 	echo "(${CPU_LOAD}+0.5)/1" | bc
 	#top -b -n11 | awk '/^Cpu/ {print $2}' | cut -d. -f1
